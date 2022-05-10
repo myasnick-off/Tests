@@ -94,7 +94,7 @@ class GitHubRepositoryTest {
         val response = mock(Response::class.java) as Response<SearchResponse?>
 
         `when`(gitHubApi.searchGithub(searchQuery)).thenReturn(call)
-        `when`(call.enqueue(callBack)).then {
+        `when`(call.enqueue(any())).then {
             callBack.onResponse(any(), any())
         }
         `when`(callBack.onResponse(any(), any())).then {
