@@ -6,7 +6,7 @@ internal class DetailsPresenter internal constructor(
     private var count: Int = 0
 ) : PresenterDetailsContract {
 
-    private var view: ViewDetailsContract? = null
+    override var view: ViewDetailsContract? = null
 
     override fun onAttach(viewContract: ViewDetailsContract) {
         view = viewContract
