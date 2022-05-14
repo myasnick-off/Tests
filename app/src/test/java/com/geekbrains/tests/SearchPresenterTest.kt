@@ -30,7 +30,25 @@ class SearchPresenterTest {
         //Раньше было @RunWith(MockitoJUnitRunner.class) в аннотации к самому классу (SearchPresenterTest)
         MockitoAnnotations.initMocks(this)
         //Создаем Презентер, используя моки Репозитория и Вью, проинициализированные строкой выше
-        presenter = SearchPresenter(viewContract, repository)
+        presenter = SearchPresenter(repository)
+    }
+
+    @Test
+    fun onAttach_Test() {
+        presenter.onAttach(viewContract)
+        assertNotNull(presenter.view)
+    }
+
+    @Test
+    fun onAttach_SetUi_Test() {
+        presenter.onAttach(viewContract)
+        verify(viewContract, times(1)).setUI()
+    }
+
+    @Test
+    fun onDetach_Test() {
+        presenter.onDetach()
+        assertNull(presenter.view)
     }
 
     @Test //Проверим вызов метода searchGitHub() у нашего Репозитория
@@ -45,6 +63,7 @@ class SearchPresenterTest {
     @Test //Проверяем работу метода handleGitHubError()
     fun handleGitHubError_Test() {
         //Вызываем у Презентера метод handleGitHubError()
+        presenter.onAttach(viewContract)
         presenter.handleGitHubError()
         //Проверяем, что у viewContract вызывается метод displayError()
         verify(viewContract, times(1)).displayError()
@@ -70,6 +89,7 @@ class SearchPresenterTest {
         //В таком случае должен вызываться метод viewContract.displayError(...)
         `when`(response.isSuccessful).thenReturn(false)
 
+        presenter.onAttach(viewContract)
         //Вызывваем у Презентера метод handleGitHubResponse()
         presenter.handleGitHubResponse(response)
 
@@ -82,6 +102,7 @@ class SearchPresenterTest {
     fun handleGitHubResponse_ResponseFailure_ViewContractMethodOrder() {
         val response = mock(Response::class.java) as Response<SearchResponse?>
         `when`(response.isSuccessful).thenReturn(false)
+        presenter.onAttach(viewContract)
         presenter.handleGitHubResponse(response)
 
         //Определяем порядок вызова методов какого класса мы хотим проверить
@@ -119,6 +140,7 @@ class SearchPresenterTest {
         //При этом body ответа == null. В таком случае должен вызываться метод viewContract.displayError(...)
         `when`(response.body()).thenReturn(null)
 
+        presenter.onAttach(viewContract)
         //Вызываем handleGitHubResponse()
         presenter.handleGitHubResponse(response)
 
@@ -143,6 +165,7 @@ class SearchPresenterTest {
         `when`(searchResponse.searchResults).thenReturn(searchResults)
         `when`(searchResponse.totalCount).thenReturn(101)
 
+        presenter.onAttach(viewContract)
         //Запускаем выполнение метода
         presenter.handleGitHubResponse(response)
 
