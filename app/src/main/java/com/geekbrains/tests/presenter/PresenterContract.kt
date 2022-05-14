@@ -1,3 +1,5 @@
 package com.geekbrains.tests.presenter
 
-internal interface PresenterContract {}
+internal interface PresenterContract {
+    fun onDetach()
+}
