@@ -1,3 +1,5 @@
 package com.geekbrains.tests.view
 
-interface ViewContract {}
+interface ViewContract {
+    fun setUI()
+}
