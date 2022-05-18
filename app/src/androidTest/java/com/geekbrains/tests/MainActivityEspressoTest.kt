@@ -75,14 +75,19 @@ class MainActivityEspressoTest {
     }
 
     @Test
+    fun activity_ProgressBar_IsDisplayed() {
+        onView(withId(R.id.searchEditText)).perform(click())
+        onView(withId(R.id.searchEditText)).perform(replaceText("some request"), closeSoftKeyboard())
+        onView(withId(R.id.searchEditText)).perform(pressImeActionButton())
+        onView(withId(R.id.progressBar)).check(matches(withEffectiveVisibility(Visibility.VISIBLE)))
+    }
+
+    @Test
     fun activity_TotalCountTextView_IsDisplayed() {
         onView(withId(R.id.searchEditText)).perform(click())
         onView(withId(R.id.searchEditText)).perform(replaceText("dggv"), closeSoftKeyboard())
         onView(withId(R.id.searchEditText)).perform(pressImeActionButton())
-
-        if (BuildConfig.TYPE != FAKE) {
-            onView(isRoot()).perform(delay())
-        }
+        onView(isRoot()).perform(delay())
         onView(withId(R.id.totalCountTextView)).check(matches(withEffectiveVisibility(Visibility.VISIBLE)))
     }
 
@@ -91,12 +96,11 @@ class MainActivityEspressoTest {
         onView(withId(R.id.searchEditText)).perform(click())
         onView(withId(R.id.searchEditText)).perform(replaceText("dggv"), closeSoftKeyboard())
         onView(withId(R.id.searchEditText)).perform(pressImeActionButton())
-
-        if (BuildConfig.TYPE == FAKE) {
+        onView(isRoot()).perform(delay())
+        if (BuildConfig.FLAVOR == FAKE) {
             onView(withId(R.id.totalCountTextView)).check(matches(withText("Number of results: 20")))
         } else {
-            onView(isRoot()).perform(delay())
-            onView(withId(R.id.totalCountTextView)).check(matches(withText("Number of results: 10")))
+            onView(withId(R.id.totalCountTextView)).check(matches(withText("Number of results: 5")))
         }
     }
 
@@ -107,7 +111,7 @@ class MainActivityEspressoTest {
             override fun getDescription(): String = "wait for $2 seconds"
 
             override fun perform(uiController: UiController, view: View?) {
-                uiController.loopMainThreadForAtLeast(2000)
+                uiController.loopMainThreadForAtLeast(3000)
             }
         }
     }
