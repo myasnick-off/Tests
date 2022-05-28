@@ -4,6 +4,7 @@ import com.geekbrains.tests.model.SearchResponse
 import com.geekbrains.tests.repository.GitHubApi
 import com.geekbrains.tests.repository.GitHubRepository
 import com.geekbrains.tests.repository.RepositoryCallback
+import com.geekbrains.tests.repository.RepositoryContract
 import okhttp3.Request
 import okio.Timeout
 import org.junit.Before
@@ -17,7 +18,7 @@ import retrofit2.Response
 
 class GitHubRepositoryTest {
 
-    private lateinit var repository: GitHubRepository
+    private lateinit var repository: RepositoryContract
 
     @Mock
     private lateinit var gitHubApi: GitHubApi
@@ -30,17 +31,15 @@ class GitHubRepositoryTest {
 
     @Test
     fun searchGithub_Test() {
-        val searchQuery = "some query"
         val call = mock(Call::class.java) as Call<SearchResponse?>
 
-        `when`(gitHubApi.searchGithub(searchQuery)).thenReturn(call)
-        repository.searchGithub(searchQuery, mock(RepositoryCallback::class.java))
-        verify(gitHubApi, times(1)).searchGithub(searchQuery)
+        `when`(gitHubApi.searchGithub(TEST_QUERY)).thenReturn(call)
+        repository.searchGithub(TEST_QUERY, mock(RepositoryCallback::class.java))
+        verify(gitHubApi, times(NUMBER_OF_INVOCATIONS_ONE)).searchGithub(TEST_QUERY)
     }
 
     @Test
     fun searchGithub_TestCallback() {
-        val searchQuery = "some query"
         val response = mock(Response::class.java) as Response<SearchResponse?>
         val gitHubRepositoryCallBack = mock(RepositoryCallback::class.java)
 
@@ -78,22 +77,21 @@ class GitHubRepositoryTest {
             }
         }
 
-        `when`(gitHubApi.searchGithub(searchQuery)).thenReturn(call)
-        repository.searchGithub(searchQuery, gitHubRepositoryCallBack)
+        `when`(gitHubApi.searchGithub(TEST_QUERY)).thenReturn(call)
+        repository.searchGithub(TEST_QUERY, gitHubRepositoryCallBack)
 
-        verify(gitHubRepositoryCallBack, times(1)).handleGitHubResponse(response)
-        verify(gitHubRepositoryCallBack, times(1)).handleGitHubError()
+        verify(gitHubRepositoryCallBack, times(NUMBER_OF_INVOCATIONS_ONE)).handleGitHubResponse(response)
+        verify(gitHubRepositoryCallBack, times(NUMBER_OF_INVOCATIONS_ONE)).handleGitHubError()
     }
 
     @Test
     fun searchGithub_TestCallback_WithMock() {
-        val searchQuery = "some query"
         val call = mock(Call::class.java) as Call<SearchResponse?>
         val callBack = mock(Callback::class.java) as Callback<SearchResponse?>
         val gitHubRepositoryCallBack = mock(RepositoryCallback::class.java)
         val response = mock(Response::class.java) as Response<SearchResponse?>
 
-        `when`(gitHubApi.searchGithub(searchQuery)).thenReturn(call)
+        `when`(gitHubApi.searchGithub(TEST_QUERY)).thenReturn(call)
         `when`(call.enqueue(any())).then {
             callBack.onResponse(any(), any())
         }
@@ -101,8 +99,8 @@ class GitHubRepositoryTest {
             gitHubRepositoryCallBack.handleGitHubResponse(response)
         }
 
-        repository.searchGithub(searchQuery, gitHubRepositoryCallBack)
+        repository.searchGithub(TEST_QUERY, gitHubRepositoryCallBack)
 
-        verify(gitHubRepositoryCallBack, times(1)).handleGitHubResponse(response)
+        verify(gitHubRepositoryCallBack, times(NUMBER_OF_INVOCATIONS_ONE)).handleGitHubResponse(response)
     }
 }

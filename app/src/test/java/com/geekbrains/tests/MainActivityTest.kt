@@ -79,9 +79,9 @@ class MainActivityTest {
     fun activity_SearchEditText_setText() {
         scenario.onActivity { activity ->
             val searchEditText = activity.findViewById<TextView>(R.id.searchEditText)
-            searchEditText.setText("some text", TextView.BufferType.EDITABLE)
+            searchEditText.setText(TEST_QUERY, TextView.BufferType.EDITABLE)
             assertNotNull(searchEditText.text)
-            assertEquals("some text", searchEditText.text.toString())
+            assertEquals(TEST_QUERY, searchEditText.text.toString())
         }
     }
 

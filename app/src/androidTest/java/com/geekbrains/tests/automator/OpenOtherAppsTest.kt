@@ -7,6 +7,7 @@ import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiScrollable
 import androidx.test.uiautomator.UiSelector
+import com.geekbrains.tests.TIMEOUT
 import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -37,6 +38,5 @@ class OpenOtherAppsTest {
         private const val END_X = 500
         private const val END_Y = 0
         private const val STEPS = 5
-        private const val TIMEOUT = 8000L
     }
 }

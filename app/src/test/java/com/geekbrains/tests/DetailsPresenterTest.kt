@@ -32,7 +32,7 @@ class DetailsPresenterTest {
     @Test
     fun onAttach_SetUi_Test() {
         presenter.onAttach(viewContract)
-        Mockito.verify(viewContract, Mockito.times(1)).setUI()
+        Mockito.verify(viewContract, Mockito.times(NUMBER_OF_INVOCATIONS_ONE)).setUI()
     }
 
     @Test
@@ -45,14 +45,14 @@ class DetailsPresenterTest {
     fun onIncrement_Test() {
         presenter.onAttach(viewContract)
         presenter.onIncrement()
-        verify(viewContract, times(1)).setCount(1)
+        verify(viewContract, times(NUMBER_OF_INVOCATIONS_ONE)).setCount(1)
     }
 
     @Test
     fun onDecrement_Test() {
         presenter.onAttach(viewContract)
         presenter.onDecrement()
-        verify(viewContract, times(1)).setCount(-1)
+        verify(viewContract, times(NUMBER_OF_INVOCATIONS_ONE)).setCount(-1)
     }
 
     @Test

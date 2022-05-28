@@ -60,7 +60,7 @@ class MainActivityEspressoTest {
 
     @Test
     fun activity_ToDetailsActivityButton_HasText() {
-        val assertion = matches(withText("TO DETAILS"))
+        val assertion = matches(withText(R.string.to_details))
         onView(withId(R.id.toDetailsActivityButton)).check(assertion)
     }
 
@@ -77,7 +77,7 @@ class MainActivityEspressoTest {
     @Test
     fun activity_ProgressBar_IsDisplayed() {
         onView(withId(R.id.searchEditText)).perform(click())
-        onView(withId(R.id.searchEditText)).perform(replaceText("some request"), closeSoftKeyboard())
+        onView(withId(R.id.searchEditText)).perform(replaceText(TEST_QUERY), closeSoftKeyboard())
         onView(withId(R.id.searchEditText)).perform(pressImeActionButton())
         onView(withId(R.id.progressBar)).check(matches(withEffectiveVisibility(Visibility.VISIBLE)))
     }
@@ -85,7 +85,7 @@ class MainActivityEspressoTest {
     @Test
     fun activity_TotalCountTextView_IsDisplayed() {
         onView(withId(R.id.searchEditText)).perform(click())
-        onView(withId(R.id.searchEditText)).perform(replaceText("dggv"), closeSoftKeyboard())
+        onView(withId(R.id.searchEditText)).perform(replaceText(TEST_QUERY), closeSoftKeyboard())
         onView(withId(R.id.searchEditText)).perform(pressImeActionButton())
         onView(isRoot()).perform(delay())
         onView(withId(R.id.totalCountTextView)).check(matches(withEffectiveVisibility(Visibility.VISIBLE)))
@@ -94,13 +94,13 @@ class MainActivityEspressoTest {
     @Test
     fun activity_Search_IsWorking() {
         onView(withId(R.id.searchEditText)).perform(click())
-        onView(withId(R.id.searchEditText)).perform(replaceText("dggv"), closeSoftKeyboard())
+        onView(withId(R.id.searchEditText)).perform(replaceText(TEST_QUERY), closeSoftKeyboard())
         onView(withId(R.id.searchEditText)).perform(pressImeActionButton())
         onView(isRoot()).perform(delay())
         if (BuildConfig.FLAVOR == FAKE) {
-            onView(withId(R.id.totalCountTextView)).check(matches(withText("Number of results: 20")))
+            onView(withId(R.id.totalCountTextView)).check(matches(withText(NUMBER_OF_RESULTS_FAKE)))
         } else {
-            onView(withId(R.id.totalCountTextView)).check(matches(withText("Number of results: 5")))
+            onView(withId(R.id.totalCountTextView)).check(matches(withText(NUMBER_OF_RESULTS_REAL)))
         }
     }
 
@@ -120,5 +120,4 @@ class MainActivityEspressoTest {
     fun close() {
         scenario.close()
     }
-
 }
