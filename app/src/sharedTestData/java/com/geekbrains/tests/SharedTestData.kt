@@ -1,5 +1,11 @@
 package com.geekbrains.tests
 
+import android.view.View
+import androidx.test.espresso.UiController
+import androidx.test.espresso.ViewAction
+import androidx.test.espresso.matcher.ViewMatchers
+import org.hamcrest.Matcher
+
 internal const val SEARCH_EDIT_TEXT = "searchEditText"
 internal const val SEARCH_BUTTON = "searchButton"
 internal const val TOTAL_COUNT_TEXT_VIEW = "totalCountTextView"
@@ -23,3 +29,16 @@ internal const val MOCK_VALUE = 101
 internal const val SEARCH_ERROR_MESSAGE = "Search results or total count are null"
 
 internal const val TIMEOUT = 8000L
+internal const val DELAY_TIME = 3000L
+
+internal fun delay(delay: Long): ViewAction {
+    return object : ViewAction {
+        override fun getConstraints(): Matcher<View> = ViewMatchers.isRoot()
+
+        override fun getDescription(): String = "wait for $2 seconds"
+
+        override fun perform(uiController: UiController, view: View?) {
+            uiController.loopMainThreadForAtLeast(delay)
+        }
+    }
+}
