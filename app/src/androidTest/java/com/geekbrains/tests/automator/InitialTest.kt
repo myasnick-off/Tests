@@ -33,6 +33,4 @@ class InitialTest {
         val intent = context.packageManager.getLaunchIntentForPackage(packageName)
         Assert.assertNotNull(intent)
     }
-
-
 }

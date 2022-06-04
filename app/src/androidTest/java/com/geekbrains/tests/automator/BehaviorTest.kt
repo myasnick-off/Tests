@@ -9,6 +9,7 @@ import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
+import com.geekbrains.tests.*
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
@@ -48,11 +49,11 @@ class BehaviorTest {
     @Test
     fun test_SearchIsPositive() {
         val editText = uiDevice.findObject(By.res(packageName, SEARCH_EDIT_TEXT))
-        editText.text = SEARCH_TEXT
+        editText.text = TEST_QUERY
         val searchButton = uiDevice.findObject(By.res(packageName, SEARCH_BUTTON))
         searchButton.click()
         val changedText = uiDevice.wait(Until.findObject(By.res(packageName, TOTAL_COUNT_TEXT_VIEW)), TIMEOUT)
-        Assert.assertEquals(changedText.text.toString(), NUMBER_OF_RESULTS)
+        Assert.assertEquals(changedText.text.toString(), NUMBER_OF_RESULTS_REAL)
     }
 
     @Test
@@ -66,13 +67,13 @@ class BehaviorTest {
     @Test
     fun test_SearchIsPositive_OnDetailsScreen() {
         val editText = uiDevice.findObject(By.res(packageName, SEARCH_EDIT_TEXT))
-        editText.text = SEARCH_TEXT
+        editText.text = TEST_QUERY
         val searchButton = uiDevice.findObject(By.res(packageName, SEARCH_BUTTON))
         searchButton.click()
         uiDevice.wait(Until.findObject(By.res(packageName, TOTAL_COUNT_TEXT_VIEW)), TIMEOUT)
         val toDetailsButton = uiDevice.findObject(By.res(packageName, TO_DETAILS_ACTIVITY_BUTTON))
         val changedText = uiDevice.wait(Until.findObject(By.res(packageName, TOTAL_COUNT_TEXT_VIEW)), TIMEOUT)
-        Assert.assertEquals(changedText.text.toString(), NUMBER_OF_RESULTS)
+        Assert.assertEquals(changedText.text.toString(), NUMBER_OF_RESULTS_REAL)
         toDetailsButton.click()
     }
 
@@ -104,21 +105,5 @@ class BehaviorTest {
         decrementButton.click()
         val totalCount = uiDevice.findObject(By.res(packageName, TOTAL_COUNT_TEXT_VIEW))
         Assert.assertEquals(totalCount.text.toString(), NUMBER_OF_RESULTS_MINUS_ONE)
-    }
-
-    companion object {
-        private const val SEARCH_EDIT_TEXT = "searchEditText"
-        private const val SEARCH_BUTTON = "searchButton"
-        private const val TOTAL_COUNT_TEXT_VIEW = "totalCountTextView"
-        private const val TO_DETAILS_ACTIVITY_BUTTON = "toDetailsActivityButton"
-        private const val INCREMENT_BUTTON = "incrementButton"
-        private const val DECREMENT_BUTTON = "decrementButton"
-
-        private const val SEARCH_TEXT = "UiAutomator"
-        private const val NUMBER_OF_RESULTS = "Number of results: 703"
-        private const val NUMBER_OF_RESULTS_ZERO = "Number of results: 0"
-        private const val NUMBER_OF_RESULTS_PLUS_ONE = "Number of results: 1"
-        private const val NUMBER_OF_RESULTS_MINUS_ONE = "Number of results: -1"
-        private const val TIMEOUT = 8000L
     }
 }

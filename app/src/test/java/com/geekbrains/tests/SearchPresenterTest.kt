@@ -42,7 +42,7 @@ class SearchPresenterTest {
     @Test
     fun onAttach_SetUi_Test() {
         presenter.onAttach(viewContract)
-        verify(viewContract, times(1)).setUI()
+        verify(viewContract, times(NUMBER_OF_INVOCATIONS_ONE)).setUI()
     }
 
     @Test
@@ -53,11 +53,10 @@ class SearchPresenterTest {
 
     @Test //Проверим вызов метода searchGitHub() у нашего Репозитория
     fun searchGitHub_Test() {
-        val searchQuery = "some query"
         //Запускаем код, функционал которого хотим протестировать
-        presenter.searchGitHub("some query")
+        presenter.searchGitHub(TEST_QUERY)
         //Убеждаемся, что все работает как надо
-        verify(repository, times(1)).searchGithub(searchQuery, presenter)
+        verify(repository, times(NUMBER_OF_INVOCATIONS_ONE)).searchGithub(TEST_QUERY, presenter)
     }
 
     @Test //Проверяем работу метода handleGitHubError()
@@ -66,7 +65,7 @@ class SearchPresenterTest {
         presenter.onAttach(viewContract)
         presenter.handleGitHubError()
         //Проверяем, что у viewContract вызывается метод displayError()
-        verify(viewContract, times(1)).displayError()
+        verify(viewContract, times(NUMBER_OF_INVOCATIONS_ONE)).displayError()
     }
 
     //Проверяем работу метода handleGitHubResponse
@@ -94,7 +93,7 @@ class SearchPresenterTest {
         presenter.handleGitHubResponse(response)
 
         //Убеждаемся, что вызывается верный метод: viewContract.displayError("Response is null or unsuccessful"), и что он вызывается единожды
-        verify(viewContract, times(1))
+        verify(viewContract, times(NUMBER_OF_INVOCATIONS_ONE))
             .displayError("Response is null or unsuccessful")
     }
 
@@ -145,8 +144,8 @@ class SearchPresenterTest {
         presenter.handleGitHubResponse(response)
 
         //Убеждаемся, что вызывается верный метод: viewContract.displayError("Search results or total count are null"), и что он вызывается единожды
-        verify(viewContract, times(1))
-            .displayError("Search results or total count are null")
+        verify(viewContract, times(NUMBER_OF_INVOCATIONS_ONE))
+            .displayError(SEARCH_ERROR_MESSAGE)
     }
 
     @Test //Пришло время проверить успешный ответ, так как все остальные случаи мы уже покрыли тестами
@@ -163,13 +162,13 @@ class SearchPresenterTest {
         `when`(response.isSuccessful).thenReturn(true)
         `when`(response.body()).thenReturn(searchResponse)
         `when`(searchResponse.searchResults).thenReturn(searchResults)
-        `when`(searchResponse.totalCount).thenReturn(101)
+        `when`(searchResponse.totalCount).thenReturn(MOCK_VALUE)
 
         presenter.onAttach(viewContract)
         //Запускаем выполнение метода
         presenter.handleGitHubResponse(response)
 
         //Убеждаемся, что ответ от сервера обрабатывается корректно
-        verify(viewContract, times(1)).displaySearchResults(searchResults, 101)
+        verify(viewContract, times(NUMBER_OF_INVOCATIONS_ONE)).displaySearchResults(searchResults, MOCK_VALUE)
     }
 }
