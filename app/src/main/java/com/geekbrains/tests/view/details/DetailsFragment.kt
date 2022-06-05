@@ -7,26 +7,35 @@ import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import com.geekbrains.tests.R
+import com.geekbrains.tests.databinding.FragmentDetailsBinding
 import com.geekbrains.tests.presenter.details.DetailsPresenter
 import com.geekbrains.tests.presenter.details.PresenterDetailsContract
-import kotlinx.android.synthetic.main.fragment_details.*
 import java.util.*
 
 class DetailsFragment : Fragment(), ViewDetailsContract {
 
     private val presenter: PresenterDetailsContract = DetailsPresenter()
 
+    private var _binding: FragmentDetailsBinding? = null
+    private val binding: FragmentDetailsBinding get() = _binding!!
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.fragment_details, container, false)
+    ): View  {
+        _binding = FragmentDetailsBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setUI()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     override fun setUI() {
@@ -35,8 +44,8 @@ class DetailsFragment : Fragment(), ViewDetailsContract {
             presenter.setCounter(counter)
             setCountText(counter)
         }
-        decrementButton.setOnClickListener { presenter.onDecrement() }
-        incrementButton.setOnClickListener { presenter.onIncrement() }
+        binding.decrementButton.setOnClickListener { presenter.onDecrement() }
+        binding.incrementButton.setOnClickListener { presenter.onIncrement() }
     }
 
     override fun setCount(count: Int) {
@@ -44,7 +53,7 @@ class DetailsFragment : Fragment(), ViewDetailsContract {
     }
 
     private fun setCountText(count: Int) {
-        totalCountTextView.text =
+        binding.totalCountTextView.text =
             String.format(Locale.getDefault(), getString(R.string.results_count), count)
     }
 
