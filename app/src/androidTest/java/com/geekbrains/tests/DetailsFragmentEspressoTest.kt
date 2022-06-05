@@ -49,6 +49,12 @@ class DetailsFragmentEspressoTest {
         onView(withId(R.id.totalCountTextView)).check(matches(withText(NUMBER_OF_RESULTS_PLUS_ONE)))
     }
 
+    @Test
+    fun fragment_TestDecrementButton() {
+        onView(withId(R.id.decrementButton)).perform(click())
+        onView(withId(R.id.totalCountTextView)).check(matches(withText(NUMBER_OF_RESULTS_MINUS_ONE)))
+    }
+
     companion object {
         private const val TOTAL_COUNT_EXTRA = "total_count_extra"
         private const val COUNT_FAKE = 20

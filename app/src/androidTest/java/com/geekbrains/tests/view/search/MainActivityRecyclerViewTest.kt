@@ -9,9 +9,10 @@ import androidx.test.espresso.action.ViewActions.*
 import androidx.test.espresso.contrib.RecyclerViewActions
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.geekbrains.tests.BuildConfig
-import com.geekbrains.tests.R
+import com.geekbrains.tests.*
+import com.geekbrains.tests.DELAY_TIME
 import com.geekbrains.tests.TEST_QUERY
+import com.geekbrains.tests.delay
 import org.hamcrest.Matcher
 import org.junit.After
 import org.junit.Before
@@ -35,7 +36,7 @@ class MainActivityRecyclerViewTest {
             onView(withId(R.id.recyclerView))
                 .perform(
                     RecyclerViewActions.scrollTo<SearchResultAdapter.SearchResultViewHolder>(
-                        hasDescendant(withText("FullName: 42"))
+                        hasDescendant(withText(FAKE_ITEM_NAME_42))
                     )
                 )
         }
@@ -43,16 +44,17 @@ class MainActivityRecyclerViewTest {
 
     @Test
     fun activitySearch_PerformClickAtPosition() {
-        if (BuildConfig.TYPE == MainActivity.FAKE) {
-            loadList()
-            onView(withId(R.id.recyclerView))
-                .perform(
-                    RecyclerViewActions.actionOnItemAtPosition<SearchResultAdapter.SearchResultViewHolder>(
-                        0,
-                        click()
-                    )
-                )
+        loadList()
+        if (BuildConfig.TYPE != MainActivity.FAKE) {
+            onView(isRoot()).perform(delay(DELAY_TIME))
         }
+        onView(withId(R.id.recyclerView))
+            .perform(
+                RecyclerViewActions.actionOnItemAtPosition<SearchResultAdapter.SearchResultViewHolder>(
+                    POSITION_0,
+                    click()
+                )
+            )
     }
 
     @Test
@@ -61,15 +63,29 @@ class MainActivityRecyclerViewTest {
             loadList()
             onView(withId(R.id.recyclerView)).perform(
                     RecyclerViewActions.scrollTo<SearchResultAdapter.SearchResultViewHolder>(
-                        hasDescendant(withText("FullName: 50"))
+                        hasDescendant(withText(FAKE_ITEM_NAME_50))
                     )
                 )
             onView(withId(R.id.recyclerView)).perform(
                     RecyclerViewActions.actionOnItem<SearchResultAdapter.SearchResultViewHolder>(
-                        hasDescendant(withText("FullName: 42")),
+                        hasDescendant(withText(FAKE_ITEM_NAME_42)),
                         click()
                     )
                 )
+        }
+    }
+
+    @Test
+    fun activitySearch_PerformClickOnRealItem() {
+        if (BuildConfig.TYPE != MainActivity.FAKE) {
+            loadList()
+            onView(isRoot()).perform(delay(DELAY_TIME))
+            onView(withId(R.id.recyclerView)).perform(
+                RecyclerViewActions.actionOnItem<SearchResultAdapter.SearchResultViewHolder>(
+                    hasDescendant(withText(REAL_ITEM_NAME)),
+                    click()
+                )
+            )
         }
     }
 
@@ -80,7 +96,7 @@ class MainActivityRecyclerViewTest {
             onView(withId(R.id.recyclerView))
                 .perform(
                     RecyclerViewActions.actionOnItemAtPosition<SearchResultAdapter.SearchResultViewHolder>(
-                        0,
+                        POSITION_0,
                         tapOnItemWithId(R.id.checkBox)
                     )
                 )
@@ -111,5 +127,12 @@ class MainActivityRecyclerViewTest {
             val v = view.findViewById(id) as View
             v.performClick()
         }
+    }
+
+    companion object {
+        private const val FAKE_ITEM_NAME_42 = "FullName: 42"
+        private const val FAKE_ITEM_NAME_50 = "FullName: 50"
+        private const val REAL_ITEM_NAME = "Qymaen/schedule"
+        private const val POSITION_0 = 0
     }
 }
