@@ -13,9 +13,9 @@ internal const val TO_DETAILS_ACTIVITY_BUTTON = "toDetailsActivityButton"
 internal const val INCREMENT_BUTTON = "incrementButton"
 internal const val DECREMENT_BUTTON = "decrementButton"
 
-internal const val TEST_QUERY = "dggv"
+internal const val TEST_QUERY = "dgma"
 internal const val NUMBER_OF_RESULTS_FAKE = "Number of results: 20"
-internal const val NUMBER_OF_RESULTS_REAL = "Number of results: 5"
+internal const val NUMBER_OF_RESULTS_REAL = "Number of results: 171"
 internal const val NUMBER_OF_RESULTS_ZERO = "Number of results: 0"
 internal const val NUMBER_OF_RESULTS_PLUS_ONE = "Number of results: 1"
 internal const val NUMBER_OF_RESULTS_MINUS_ONE = "Number of results: -1"
@@ -29,7 +29,7 @@ internal const val MOCK_VALUE = 101
 internal const val SEARCH_ERROR_MESSAGE = "Search results or total count are null"
 
 internal const val TIMEOUT = 8000L
-internal const val DELAY_TIME = 3000L
+internal const val DELAY_TIME = 5000L
 
 internal fun delay(delay: Long): ViewAction {
     return object : ViewAction {
