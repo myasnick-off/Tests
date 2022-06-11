@@ -16,13 +16,14 @@ import com.geekbrains.tests.repository.GitHubRepository
 import com.geekbrains.tests.repository.RepositoryContract
 import com.geekbrains.tests.view.details.DetailsActivity
 import retrofit2.Retrofit
+import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.*
 
 class MainActivity : AppCompatActivity(), ViewSearchContract {
 
     private val adapter = SearchResultAdapter()
-    private val presenter: PresenterSearchContract = SearchPresenter(createRepository())
+    private val presenter: PresenterSearchContract = SearchPresenter(this, createRepository())
     private var totalCount: Int = 0
 
     private var binding: ActivityMainBinding? = null
@@ -99,6 +100,7 @@ class MainActivity : AppCompatActivity(), ViewSearchContract {
     private fun createRetrofit(): Retrofit {
         return Retrofit.Builder()
             .baseUrl(BASE_URL)
+            .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }

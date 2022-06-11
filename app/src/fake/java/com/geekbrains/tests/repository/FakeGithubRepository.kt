@@ -4,10 +4,18 @@ import com.geekbrains.tests.model.SearchResponse
 import com.geekbrains.tests.model.SearchResult
 import retrofit2.Response
 import kotlin.random.Random
+import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
+
 
 internal class FakeGithubRepository: RepositoryContract {
     override fun searchGithub(query: String, callback: RepositoryCallback) {
         callback.handleGitHubResponse(Response.success(getFakeResponse()))
+    }
+
+    override fun searchGithub(query: String): Observable<SearchResponse> {
+        return Observable.just(getFakeResponse())
     }
 
     private fun getFakeResponse(): SearchResponse {
