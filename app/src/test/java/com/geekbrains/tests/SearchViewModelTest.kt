@@ -11,6 +11,7 @@ import com.geekbrains.tests.repository.FakeGithubRepository
 import com.geekbrains.tests.stubs.SchedulerProviderStub
 import com.nhaarman.mockito_kotlin.verify
 import io.reactivex.Observable
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Rule
@@ -24,10 +25,14 @@ import org.robolectric.annotation.Config
 
 @RunWith(AndroidJUnit4::class)
 @Config(sdk = [Build.VERSION_CODES.O_MR1])
+@ExperimentalCoroutinesApi
 class SearchViewModelTest {
 
     @get: Rule
     var instantExecutorRule = InstantTaskExecutorRule()
+
+    @get: Rule
+    var testCoroutineRule = TestCoroutineRule()
 
     private lateinit var searchViewModel: SearchViewModel
 
@@ -42,53 +47,76 @@ class SearchViewModelTest {
 
     @Test
     fun search_Test() {
-        `when`(repository.searchGithub(SEARCH_QUERY)).thenReturn(
-            Observable.just(SearchResponse(1, listOf()))
-        )
-        searchViewModel.searchGitHub(SEARCH_QUERY)
-        verify(repository, times(1)).searchGithub(SEARCH_QUERY)
-    }
-
-    @Test
-    fun liveData_TestReturnValueIsNotNull() {
-        val observer = Observer<ScreenState> {}
-        val liveData = searchViewModel.subscribeToLiveData()
-
-        `when`(repository.searchGithub(SEARCH_QUERY)).thenReturn(
-            Observable.just(SearchResponse(1, listOf()))
-        )
-
-        try {
-            liveData.observeForever(observer)
+        testCoroutineRule.runBlockingTest {
+            `when`(repository.searchGithubAsync(SEARCH_QUERY)).thenReturn(
+                SearchResponse(1, listOf())
+            )
             searchViewModel.searchGitHub(SEARCH_QUERY)
-            Assert.assertNotNull(liveData.value)
-        } finally {
-            liveData.removeObserver(observer)
+            verify(repository, times(1)).searchGithubAsync(SEARCH_QUERY)
         }
     }
 
     @Test
-    fun liveData_TestReturnValueIsError() {
-        val observer = Observer<ScreenState> {}
-        val liveData = searchViewModel.subscribeToLiveData()
-        val error = Throwable(ERROR_TEXT)
+    fun coroutines_TestReturnValueIsNotNull() {
+        testCoroutineRule.runBlockingTest {
+            val observer = Observer<ScreenState> {}
+            val liveData = searchViewModel.subscribeToLiveData()
 
-        `when`(repository.searchGithub(SEARCH_QUERY)).thenReturn(
-            Observable.error(error)
-        )
+            `when`(repository.searchGithubAsync(SEARCH_QUERY)).thenReturn(
+                SearchResponse(1, listOf())
+            )
 
-        try {
-            liveData.observeForever(observer)
-            searchViewModel.searchGitHub(SEARCH_QUERY)
-            val value: ScreenState.Error = liveData.value as ScreenState.Error
-            Assert.assertEquals(value.error.message, error.message)
-        } finally {
-            liveData.removeObserver(observer)
+            try {
+                liveData.observeForever(observer)
+                searchViewModel.searchGitHub(SEARCH_QUERY)
+                Assert.assertNotNull(liveData.value)
+            } finally {
+                liveData.removeObserver(observer)
+            }
+        }
+    }
+
+    @Test
+    fun coroutines_TestReturnValueIsError() {
+        testCoroutineRule.runBlockingTest {
+            val observer = Observer<ScreenState> {}
+            val liveData = searchViewModel.subscribeToLiveData()
+
+            `when`(repository.searchGithubAsync(SEARCH_QUERY)).thenReturn(
+                SearchResponse(null, listOf())
+            )
+
+            try {
+                liveData.observeForever(observer)
+                searchViewModel.searchGitHub(SEARCH_QUERY)
+                val value: ScreenState.Error = liveData.value as ScreenState.Error
+                Assert.assertEquals(value.error.message, ERROR_TEXT)
+            } finally {
+                liveData.removeObserver(observer)
+            }
+        }
+    }
+
+    @Test
+    fun coroutines_TestException() {
+        testCoroutineRule.runBlockingTest {
+            val observer = Observer<ScreenState> {}
+            val liveData = searchViewModel.subscribeToLiveData()
+
+            try {
+                liveData.observeForever(observer)
+                searchViewModel.searchGitHub(SEARCH_QUERY)
+                val value: ScreenState.Error = liveData.value as ScreenState.Error
+                Assert.assertEquals(value.error.message, EXCEPTION_TEXT)
+            } finally {
+                liveData.removeObserver(observer)
+            }
         }
     }
 
     companion object {
         private const val SEARCH_QUERY = "some query"
-        private const val ERROR_TEXT = "error"
+        private const val ERROR_TEXT = "Search results or total count are null"
+        private const val EXCEPTION_TEXT = "Response is null or unsuccessful"
     }
 }
