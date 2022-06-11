@@ -8,9 +8,7 @@ import com.geekbrains.tests.model.SearchResponse
 import com.geekbrains.tests.presenter.search.ScreenState
 import com.geekbrains.tests.presenter.search.SearchViewModel
 import com.geekbrains.tests.repository.FakeGithubRepository
-import com.geekbrains.tests.stubs.SchedulerProviderStub
 import com.nhaarman.mockito_kotlin.verify
-import io.reactivex.Observable
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.junit.Assert
 import org.junit.Before
@@ -42,14 +40,14 @@ class SearchViewModelTest {
     @Before
     fun setup() {
         MockitoAnnotations.initMocks(this)
-        searchViewModel = SearchViewModel(repository, SchedulerProviderStub())
+        searchViewModel = SearchViewModel(repository)
     }
 
     @Test
     fun search_Test() {
         testCoroutineRule.runBlockingTest {
             `when`(repository.searchGithubAsync(SEARCH_QUERY)).thenReturn(
-                SearchResponse(1, listOf())
+                SearchResponse(TEST_COUNT, listOf())
             )
             searchViewModel.searchGitHub(SEARCH_QUERY)
             verify(repository, times(1)).searchGithubAsync(SEARCH_QUERY)
@@ -63,7 +61,7 @@ class SearchViewModelTest {
             val liveData = searchViewModel.subscribeToLiveData()
 
             `when`(repository.searchGithubAsync(SEARCH_QUERY)).thenReturn(
-                SearchResponse(1, listOf())
+                SearchResponse(TEST_COUNT, listOf())
             )
 
             try {
@@ -77,7 +75,26 @@ class SearchViewModelTest {
     }
 
     @Test
-    fun coroutines_TestReturnValueIsError() {
+    fun coroutines_TestReturnExpectedValue() {
+        searchViewModel = SearchViewModel(FakeGithubRepository())
+        testCoroutineRule.runBlockingTest {
+            val observer = Observer<ScreenState> {}
+            val liveData = searchViewModel.subscribeToLiveData()
+
+            try {
+                liveData.observeForever(observer)
+                searchViewModel.searchGitHub(SEARCH_QUERY)
+                val value: ScreenState.Working = liveData.value as ScreenState.Working
+                Assert.assertEquals(EXPECTED_COUNT, value.searchResponse.totalCount)
+                Assert.assertEquals(true, value.searchResponse.searchResults?.isNotEmpty())
+            } finally {
+                liveData.removeObserver(observer)
+            }
+        }
+    }
+
+    @Test
+    fun coroutines_TestReturnErrorWhenTotalCountIsNull() {
         testCoroutineRule.runBlockingTest {
             val observer = Observer<ScreenState> {}
             val liveData = searchViewModel.subscribeToLiveData()
@@ -90,7 +107,28 @@ class SearchViewModelTest {
                 liveData.observeForever(observer)
                 searchViewModel.searchGitHub(SEARCH_QUERY)
                 val value: ScreenState.Error = liveData.value as ScreenState.Error
-                Assert.assertEquals(value.error.message, ERROR_TEXT)
+                Assert.assertEquals(ERROR_TEXT, value.error.message)
+            } finally {
+                liveData.removeObserver(observer)
+            }
+        }
+    }
+
+    @Test
+    fun coroutines_TestReturnErrorWhenSearchResultsIsNull() {
+        testCoroutineRule.runBlockingTest {
+            val observer = Observer<ScreenState> {}
+            val liveData = searchViewModel.subscribeToLiveData()
+
+            `when`(repository.searchGithubAsync(SEARCH_QUERY)).thenReturn(
+                SearchResponse(TEST_COUNT, null)
+            )
+
+            try {
+                liveData.observeForever(observer)
+                searchViewModel.searchGitHub(SEARCH_QUERY)
+                val value: ScreenState.Error = liveData.value as ScreenState.Error
+                Assert.assertEquals(ERROR_TEXT, value.error.message)
             } finally {
                 liveData.removeObserver(observer)
             }
@@ -107,7 +145,7 @@ class SearchViewModelTest {
                 liveData.observeForever(observer)
                 searchViewModel.searchGitHub(SEARCH_QUERY)
                 val value: ScreenState.Error = liveData.value as ScreenState.Error
-                Assert.assertEquals(value.error.message, EXCEPTION_TEXT)
+                Assert.assertEquals(EXCEPTION_TEXT, value.error.message)
             } finally {
                 liveData.removeObserver(observer)
             }
@@ -118,5 +156,7 @@ class SearchViewModelTest {
         private const val SEARCH_QUERY = "some query"
         private const val ERROR_TEXT = "Search results or total count are null"
         private const val EXCEPTION_TEXT = "Response is null or unsuccessful"
+        private const val TEST_COUNT = 42
+        private const val EXPECTED_COUNT = 100
     }
 }

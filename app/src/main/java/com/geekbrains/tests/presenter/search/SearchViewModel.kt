@@ -23,8 +23,7 @@ class SearchViewModel(
             .addCallAdapterFactory(CoroutineCallAdapterFactory())
             .addConverterFactory(GsonConverterFactory.create())
             .build().create(GitHubApi::class.java)
-    ),
-    private val appSchedulerProvider: SchedulerProvider = SearchSchedulerProvider()
+    )
 ) : ViewModel() {
 
     private val _liveData = MutableLiveData<ScreenState>()
