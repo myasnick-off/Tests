@@ -9,7 +9,6 @@ internal interface ViewSearchContract : ViewContract {
         totalCount: Int
     )
 
-    fun displayError()
-    fun displayError(error: String)
-    fun displayLoading(show: Boolean)
+    fun displayError(error: String?)
+    fun displayLoading(isVisible: Boolean)
 }

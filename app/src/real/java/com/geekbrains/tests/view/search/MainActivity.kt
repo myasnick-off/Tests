@@ -6,24 +6,23 @@ import android.view.inputmethod.EditorInfo
 import android.widget.TextView.OnEditorActionListener
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
+import androidx.lifecycle.ViewModelProvider
 import com.geekbrains.tests.R
 import com.geekbrains.tests.databinding.ActivityMainBinding
 import com.geekbrains.tests.model.SearchResult
-import com.geekbrains.tests.presenter.search.PresenterSearchContract
-import com.geekbrains.tests.presenter.search.SearchPresenter
-import com.geekbrains.tests.repository.GitHubApi
-import com.geekbrains.tests.repository.GitHubRepository
-import com.geekbrains.tests.repository.RepositoryContract
+import com.geekbrains.tests.presenter.search.ScreenState
+import com.geekbrains.tests.presenter.search.SearchViewModel
 import com.geekbrains.tests.view.details.DetailsActivity
-import retrofit2.Retrofit
-import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
-import retrofit2.converter.gson.GsonConverterFactory
 import java.util.*
 
 class MainActivity : AppCompatActivity(), ViewSearchContract {
 
+    private val viewModel: SearchViewModel by lazy {
+        ViewModelProvider(this)[SearchViewModel::class.java]
+    }
+
     private val adapter = SearchResultAdapter()
-    private val presenter: PresenterSearchContract = SearchPresenter(this, createRepository())
     private var totalCount: Int = 0
 
     private var binding: ActivityMainBinding? = null
@@ -32,12 +31,8 @@ class MainActivity : AppCompatActivity(), ViewSearchContract {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding?.root)
-        presenter.onAttach(this)
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        presenter.onDetach()
+        setUI()
+        initViewModel()
     }
 
     override fun setUI() {
@@ -47,6 +42,26 @@ class MainActivity : AppCompatActivity(), ViewSearchContract {
         setQueryListener()
         setSearchButtonListener()
         setRecyclerView()
+    }
+
+    private fun initViewModel() {
+        viewModel.subscribeToLiveData().observe(this) { onStateChange(it) }
+    }
+
+    private fun onStateChange(state: ScreenState) {
+        when(state) {
+            is ScreenState.Working -> {
+                displayLoading(false)
+                state.searchResponse.apply {
+                    displaySearchResults(searchResults!!, totalCount!!)
+                }
+            }
+            is ScreenState.Error -> {
+                displayLoading(false)
+                displayError(state.error.message)
+            }
+            ScreenState.Loading -> displayLoading(true)
+        }
     }
 
     private fun setRecyclerView() {
@@ -60,7 +75,7 @@ class MainActivity : AppCompatActivity(), ViewSearchContract {
         binding?.searchButton?.setOnClickListener {
             val query =  binding?.searchEditText?.text.toString()
             if (query.isNotBlank()) {
-                presenter.searchGitHub(query)
+                viewModel.searchGitHub(query)
             } else {
                 Toast.makeText(
                     this@MainActivity,
@@ -77,7 +92,7 @@ class MainActivity : AppCompatActivity(), ViewSearchContract {
                 if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                     val query = binding.searchEditText.text.toString()
                     if (query.isNotBlank()) {
-                        presenter.searchGitHub(query)
+                        viewModel.searchGitHub(query)
                         return@OnEditorActionListener true
                     } else {
                         Toast.makeText(
@@ -93,22 +108,8 @@ class MainActivity : AppCompatActivity(), ViewSearchContract {
         }
     }
 
-    private fun createRepository(): RepositoryContract {
-        return GitHubRepository(createRetrofit().create(GitHubApi::class.java))
-    }
 
-    private fun createRetrofit(): Retrofit {
-        return Retrofit.Builder()
-            .baseUrl(BASE_URL)
-            .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-    }
-
-    override fun displaySearchResults(
-        searchResults: List<SearchResult>,
-        totalCount: Int
-    ) {
+    override fun displaySearchResults(searchResults: List<SearchResult>, totalCount: Int) {
         binding?.let { binding ->
             binding.totalCountTextView.visibility = View.VISIBLE
             binding.totalCountTextView.text =
@@ -118,24 +119,15 @@ class MainActivity : AppCompatActivity(), ViewSearchContract {
         adapter.updateResults(searchResults)
     }
 
-    override fun displayError() {
-        Toast.makeText(this, getString(R.string.undefined_error), Toast.LENGTH_SHORT).show()
+    override fun displayError(error: String?) {
+        Toast.makeText(this, error ?: getString(R.string.undefined_error), Toast.LENGTH_SHORT).show()
     }
 
-    override fun displayError(error: String) {
-        Toast.makeText(this, error, Toast.LENGTH_SHORT).show()
-    }
-
-    override fun displayLoading(show: Boolean) {
-        if (show) {
-            binding?.progressBar?.visibility = View.VISIBLE
-        } else {
-            binding?.progressBar?.visibility = View.GONE
-        }
+    override fun displayLoading(isVisible: Boolean) {
+        binding?.let { it.progressBar.isVisible = isVisible }
     }
 
     companion object {
-        const val BASE_URL = "https://api.github.com"
         const val FAKE = "FAKE"
     }
 }

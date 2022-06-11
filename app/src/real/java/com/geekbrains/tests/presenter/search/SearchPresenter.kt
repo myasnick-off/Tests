@@ -80,7 +80,7 @@ internal class SearchPresenter internal constructor(
 
     override fun handleGitHubError() {
         view?.displayLoading(false)
-        view?.displayError()
+        view?.displayError(null)
     }
 
     override fun onDetach() {

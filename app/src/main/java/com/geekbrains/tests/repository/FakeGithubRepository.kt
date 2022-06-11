@@ -2,11 +2,9 @@ package com.geekbrains.tests.repository
 
 import com.geekbrains.tests.model.SearchResponse
 import com.geekbrains.tests.model.SearchResult
+import io.reactivex.Observable
 import retrofit2.Response
 import kotlin.random.Random
-import io.reactivex.Observable
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
 
 
 internal class FakeGithubRepository: RepositoryContract {
