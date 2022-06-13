@@ -65,7 +65,7 @@ class SearchPresenterTest {
         presenter.onAttach(viewContract)
         presenter.handleGitHubError()
         //Проверяем, что у viewContract вызывается метод displayError()
-        verify(viewContract, times(NUMBER_OF_INVOCATIONS_ONE)).displayError()
+        verify(viewContract, times(NUMBER_OF_INVOCATIONS_ONE)).displayError(null)
     }
 
     //Проверяем работу метода handleGitHubResponse

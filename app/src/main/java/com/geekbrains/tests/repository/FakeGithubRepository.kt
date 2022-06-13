@@ -2,11 +2,9 @@ package com.geekbrains.tests.repository
 
 import com.geekbrains.tests.model.SearchResponse
 import com.geekbrains.tests.model.SearchResult
+import io.reactivex.Observable
 import retrofit2.Response
 import kotlin.random.Random
-import io.reactivex.Observable
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
 
 
 internal class FakeGithubRepository: RepositoryContract {
@@ -16,6 +14,10 @@ internal class FakeGithubRepository: RepositoryContract {
 
     override fun searchGithub(query: String): Observable<SearchResponse> {
         return Observable.just(getFakeResponse())
+    }
+
+    override suspend fun searchGithubAsync(query: String): SearchResponse {
+        return getFakeResponse()
     }
 
     private fun getFakeResponse(): SearchResponse {
